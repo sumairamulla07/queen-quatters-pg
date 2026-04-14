@@ -57,7 +57,7 @@ export default function LocationSection() {
         {/* Google Maps Embed — lazy loaded for performance */}
         <ScrollReveal className="rounded-xl overflow-hidden border border-border h-64 md:h-80 bg-muted">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3781.5!2d73.76!3d18.65!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTjCsDM5JzAwLjAiTiA3M8KwNDUnMzYuMCJF!5e0!3m2!1sen!2sin!4v1"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3780.144097185172!2d73.75994788640523!3d18.657528679720265!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2b922b1c336af%3A0xdc959b21f6f959da!2sGirls%20PG%20(Hostel)!5e0!3m2!1sen!2sin!4v1776195050843!5m2!1sen!2sin"
             width="100%"
             height="100%"
             style={{ border: 0 }}
