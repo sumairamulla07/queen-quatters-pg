@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Amenities", href: "#amenities" },
   { label: "Rooms", href: "#rooms" },
   { label: "Safety", href: "#safety" },
+  { label: "Location", href: "#location" },
   { label: "Gallery", href: "#gallery" },
   { label: "FAQs", href: "#faq" },
   { label: "Contact", href: "#contact" },
