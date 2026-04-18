@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
+import { Analytics } from '@vercel/analytics/next';
 import "./globals.css";
 import { BUSINESS_NAME, BUSINESS_ADDRESS, PHONE_DISPLAY } from "@/lib/utils";
 
@@ -256,6 +257,7 @@ export default function RootLayout({
       </head>
       <body className="bg-background text-foreground font-body antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   );
