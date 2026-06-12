@@ -55,10 +55,17 @@ export default function GallerySection() {
           ))}
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          * More photos will be updated soon. Book a visit to see the PG in
-          person.
-        </p>
+        <div className="text-center mt-8 flex flex-col items-center gap-3">
+          
+            href="/gallery"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            View More Photos →
+          </a>
+          <p className="text-sm text-muted-foreground">
+            * More photos will be updated soon. Book a visit to see the PG in person.
+          </p>
+        </div>
       </div>
     </section>
   );
