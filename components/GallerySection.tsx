@@ -1,12 +1,13 @@
 import ScrollReveal from "./ScrollReveal";
+import Link from "next/link";
 
 const gallery = [
   { src: "/images/room-interior.webp", label: "Room Interior", alt: "Clean and spacious room interior at Queen Quatters girls PG near PCCOE Nigdi Pune" },
-  { src: "/images/washroom.webp", label: "Washroom",      alt: "Well-maintained clean washroom at Queen Quatters PG Pradhikaran Nigdi" },
-  { src: "/images/balcony.webp", label: "Balcony View",  alt: "Open balcony with fresh air view at Queen Quatters girls hostel near PCCOE" },
+  { src: "/images/washroom.webp", label: "Washroom", alt: "Well-maintained clean washroom at Queen Quatters PG Pradhikaran Nigdi" },
+  { src: "/images/balcony.webp", label: "Balcony View", alt: "Open balcony with fresh air view at Queen Quatters girls hostel near PCCOE" },
   { src: "/images/outer building.jpeg", label: "Building Exterior", alt: "Building exterior of Queen Quatters PG behind PCCOE Sector 26 Nigdi" },
-  { src: "/images/bunkbed.webp", label: "Bunk Bed at Reasonable Price",   alt: "Common area at Queen Quatters safe girls PG Nigdi Pune" },
-  { src: "/images/common-space.webp", label: "Common Space",   alt: "Quiet study space for students at Queen Quatters PG near PCCOE" },
+  { src: "/images/bunkbed.webp", label: "Bunk Bed at Reasonable Price", alt: "Common area at Queen Quatters safe girls PG Nigdi Pune" },
+  { src: "/images/common-space.webp", label: "Common Space", alt: "Quiet study space for students at Queen Quatters PG near PCCOE" },
 ];
 
 export default function GallerySection() {
@@ -56,12 +57,12 @@ export default function GallerySection() {
         </div>
 
         <div className="text-center mt-8 flex flex-col items-center gap-3">
-          
+          <Link
             href="/gallery"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
           >
             View More Photos →
-          </a>
+          </Link>
           <p className="text-sm text-muted-foreground">
             * More photos will be updated soon. Book a visit to see the PG in person.
           </p>
