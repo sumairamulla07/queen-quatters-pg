@@ -12,6 +12,7 @@ const navLinks = [
   { label: "Safety", href: "#safety" },
   { label: "Location", href: "#location" },
   { label: "Gallery", href: "/gallery" },
+  { label: "Information", href: "/information" }, 
   { label: "FAQs", href: "#faq" },
   { label: "Contact", href: "#contact" },
 ];
