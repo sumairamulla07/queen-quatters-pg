@@ -18,7 +18,7 @@ export default function InformationPage() {
     motherName: "", motherContact: "",
     street1: "", street2: "", city: "", state: "", pinCode: "",
     guardianName: "", guardianContact: "", guardianAddress: "",
-    residentType: "", roomSharing: "", agreement: "",
+        residentType: "", roomSharing: "", agreement: "", dob: "",
   });
 
   const photoRef = useRef<HTMLInputElement>(null);
@@ -115,6 +115,10 @@ export default function InformationPage() {
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Emergency Contact Number *</label>
                   <input name="emergencyContact" required value={form.emergencyContact} onChange={handleChange} placeholder="Emergency contact number" className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Date of Birth *</label>
+                  <input name="dob" required type="date" value={form.dob} onChange={handleChange} className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Resident Type *</label>
