@@ -51,8 +51,7 @@ export default function InformationPage() {
     setSubmitting(true);
     setError("");
 
-    try {
-      // Convert each file to base64
+  try {
       async function encodeFile(ref: React.RefObject<HTMLInputElement>) {
         const file = ref.current?.files?.[0];
         if (!file) return { data: null, ext: null, mime: null };
@@ -61,11 +60,11 @@ export default function InformationPage() {
         return { data: base64, ext, mime: file.type };
       }
 
-      const passport     = await encodeFile(photoRef);
-      const aadhar       = await encodeFile(aadharRef);
-      const panOrCert    = await encodeFile(isMinor ? certRef : panRef);
-      const guardPhoto   = await encodeFile(guardianPhotoRef);
-      const guardAadhar  = await encodeFile(guardianAadharRef);
+      const passport    = await encodeFile(photoRef);
+      const aadhar      = await encodeFile(aadharRef);
+      const panOrCert   = await encodeFile(isMinor ? certRef : panRef);
+      const guardPhoto  = await encodeFile(guardianPhotoRef);
+      const guardAadhar = await encodeFile(guardianAadharRef);
 
       const payload = {
         ...form,
@@ -86,11 +85,30 @@ export default function InformationPage() {
         guardianAadharMime: guardAadhar.mime,
       };
 
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      // Use a form POST via hidden iframe to avoid CORS
+      const form_el = document.createElement("form");
+      form_el.method = "POST";
+      form_el.action = GOOGLE_SCRIPT_URL;
+      form_el.target = "hidden_iframe";
+
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "data";
+      input.value = JSON.stringify(payload);
+      form_el.appendChild(input);
+
+      const iframe = document.createElement("iframe");
+      iframe.name = "hidden_iframe";
+      iframe.style.display = "none";
+      document.body.appendChild(iframe);
+      document.body.appendChild(form_el);
+      form_el.submit();
+
+      // Clean up after submit
+      setTimeout(() => {
+        document.body.removeChild(form_el);
+        document.body.removeChild(iframe);
+      }, 3000);
 
       setSubmitted(true);
     } catch (err) {
