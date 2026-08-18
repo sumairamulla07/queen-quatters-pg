@@ -13,6 +13,7 @@ import LeadForm from "@/components/LeadForm";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
+import ResidentInfoPopup from "@/components/ResidentInfoPopup";
 
 // Page-level metadata (extends layout metadata)
 export const metadata: Metadata = {
@@ -63,6 +64,8 @@ export default function HomePage() {
         {/* 11. FAQ — FAQ schema, long-tail keyword coverage */}
         <FAQSection />
       </main>
+
+      <ResidentInfoPopup />
 
       <Footer />
 
