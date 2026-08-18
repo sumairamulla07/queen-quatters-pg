@@ -7,28 +7,40 @@ import Link from "next/link";
 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIFbGtVZM-UvmI4T7INaPylekeWYqfa5rn2lQfis8kiwzZtugLZwFd4DqVf9c8WOC6AA/exec";
 
+// Helper: convert File to base64 string
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(",")[1]); // strip "data:...;base64,"
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function InformationPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [isMinor, setIsMinor] = useState(false);
 
   const [form, setForm] = useState({
-    fullName: "", contactNumber: "", emergencyContact: "",
+    fullName: "", contactNumber: "", dob: "", emergencyContact: "",
     fatherName: "", fatherContact: "", fatherOccupation: "",
     motherName: "", motherContact: "",
     street1: "", street2: "", city: "", state: "", pinCode: "",
     guardianName: "", guardianContact: "", guardianAddress: "",
-        residentType: "", roomSharing: "", agreement: "", dob: "",
+    residentType: "", roomSharing: "", agreement: "",
   });
 
-  const photoRef = useRef<HTMLInputElement>(null);
-  const aadharRef = useRef<HTMLInputElement>(null);
-  const panRef = useRef<HTMLInputElement>(null);
-  const certRef = useRef<HTMLInputElement>(null);
-  const guardianPhotoRef = useRef<HTMLInputElement>(null);
+  const photoRef        = useRef<HTMLInputElement>(null);
+  const aadharRef       = useRef<HTMLInputElement>(null);
+  const panRef          = useRef<HTMLInputElement>(null);
+  const certRef         = useRef<HTMLInputElement>(null);
+  const guardianPhotoRef  = useRef<HTMLInputElement>(null);
   const guardianAadharRef = useRef<HTMLInputElement>(null);
-
-  const [isMinor, setIsMinor] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -39,25 +51,50 @@ export default function InformationPage() {
     setSubmitting(true);
     setError("");
 
-    const filesNote = [
-      photoRef.current?.files?.[0] ? "Passport Photo ✓" : "Passport Photo ✗",
-      aadharRef.current?.files?.[0] ? "Aadhar ✓" : "Aadhar ✗",
-      isMinor
-        ? (certRef.current?.files?.[0] ? "Certificate ✓" : "Certificate ✗")
-        : (panRef.current?.files?.[0] ? "PAN ✓" : "PAN ✗"),
-      guardianPhotoRef.current?.files?.[0] ? "Guardian Photo ✓" : "-",
-      guardianAadharRef.current?.files?.[0] ? "Guardian Aadhar ✓" : "-",
-    ].join(", ");
-
     try {
+      // Convert each file to base64
+      async function encodeFile(ref: React.RefObject<HTMLInputElement>) {
+        const file = ref.current?.files?.[0];
+        if (!file) return { data: null, ext: null, mime: null };
+        const base64 = await fileToBase64(file);
+        const ext = file.name.split(".").pop();
+        return { data: base64, ext, mime: file.type };
+      }
+
+      const passport     = await encodeFile(photoRef);
+      const aadhar       = await encodeFile(aadharRef);
+      const panOrCert    = await encodeFile(isMinor ? certRef : panRef);
+      const guardPhoto   = await encodeFile(guardianPhotoRef);
+      const guardAadhar  = await encodeFile(guardianAadharRef);
+
+      const payload = {
+        ...form,
+        passportPhoto:      passport.data,
+        passportPhotoExt:   passport.ext,
+        passportPhotoMime:  passport.mime,
+        aadharCard:         aadhar.data,
+        aadharCardExt:      aadhar.ext,
+        aadharCardMime:     aadhar.mime,
+        panOrCert:          panOrCert.data,
+        panOrCertExt:       panOrCert.ext,
+        panOrCertMime:      panOrCert.mime,
+        guardianPhoto:      guardPhoto.data,
+        guardianPhotoExt:   guardPhoto.ext,
+        guardianPhotoMime:  guardPhoto.mime,
+        guardianAadhar:     guardAadhar.data,
+        guardianAadharExt:  guardAadhar.ext,
+        guardianAadharMime: guardAadhar.mime,
+      };
+
       await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, filesNote }),
+        body: JSON.stringify(payload),
       });
+
       setSubmitted(true);
-    } catch {
+    } catch (err) {
       setError("Something went wrong. Please try again or contact us directly.");
     } finally {
       setSubmitting(false);
@@ -72,7 +109,7 @@ export default function InformationPage() {
           <div className="text-center max-w-md mx-auto px-4">
             <div className="text-5xl mb-4">✅</div>
             <h1 className="font-display text-3xl font-bold text-foreground mb-3">Information Submitted!</h1>
-            <p className="text-muted-foreground mb-6">Thank you. Your resident information has been received. We'll be in touch shortly.</p>
+            <p className="text-muted-foreground mb-6">Thank you. Your resident information and documents have been received successfully.</p>
             <Link href="/" className="inline-flex px-6 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
               Back to Home
             </Link>
@@ -95,7 +132,7 @@ export default function InformationPage() {
             <p className="text-sm font-semibold uppercase tracking-widest text-rose">Queen Quatters</p>
             <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-2 mb-3">Resident Information Form</h1>
             <div className="gold-divider" />
-            <p className="text-muted-foreground mt-4 text-sm">Please fill in all details accurately. This helps us maintain proper records.</p>
+            <p className="text-muted-foreground mt-4 text-sm">Please fill in all details accurately. Documents will be securely saved.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="bg-background rounded-2xl shadow-sm border border-border p-6 md:p-10 space-y-8">
@@ -109,16 +146,16 @@ export default function InformationPage() {
                   <input name="fullName" required value={form.fullName} onChange={handleChange} placeholder="Enter full name" className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Date of Birth *</label>
+                  <input name="dob" required type="date" value={form.dob} onChange={handleChange} className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Contact Number *</label>
                   <input name="contactNumber" required value={form.contactNumber} onChange={handleChange} placeholder="10-digit mobile number" className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Emergency Contact Number *</label>
                   <input name="emergencyContact" required value={form.emergencyContact} onChange={handleChange} placeholder="Emergency contact number" className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Date of Birth *</label>
-                  <input name="dob" required type="date" value={form.dob} onChange={handleChange} className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Resident Type *</label>
@@ -137,7 +174,7 @@ export default function InformationPage() {
                     <option value="4 Sharing">4 Sharing</option>
                   </select>
                 </div>
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-foreground mb-1">11-Month Agreement *</label>
                   <select name="agreement" required value={form.agreement} onChange={handleChange} className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary">
                     <option value="">Select option</option>
@@ -148,7 +185,7 @@ export default function InformationPage() {
               </div>
             </section>
 
-            {/* Father's Info */}
+            {/* Father */}
             <section>
               <h2 className="font-display text-xl font-semibold text-foreground mb-4 pb-2 border-b border-border">Father's Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -167,7 +204,7 @@ export default function InformationPage() {
               </div>
             </section>
 
-            {/* Mother's Info */}
+            {/* Mother */}
             <section>
               <h2 className="font-display text-xl font-semibold text-foreground mb-4 pb-2 border-b border-border">Mother's Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -182,7 +219,7 @@ export default function InformationPage() {
               </div>
             </section>
 
-            {/* Permanent Address */}
+            {/* Address */}
             <section>
               <h2 className="font-display text-xl font-semibold text-foreground mb-4 pb-2 border-b border-border">Permanent Address</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -209,10 +246,10 @@ export default function InformationPage() {
               </div>
             </section>
 
-            {/* Local Guardian */}
+            {/* Guardian */}
             <section>
               <h2 className="font-display text-xl font-semibold text-foreground mb-1 pb-2 border-b border-border">Local Guardian in Pune <span className="text-muted-foreground text-base font-normal">(if any)</span></h2>
-              <p className="text-xs text-muted-foreground mb-4">Fill this section only if there is a guardian staying in Pune</p>
+              <p className="text-xs text-muted-foreground mb-4">Fill this only if there is a guardian staying in Pune</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Guardian's Name</label>
@@ -232,10 +269,10 @@ export default function InformationPage() {
             {/* Documents */}
             <section>
               <h2 className="font-display text-xl font-semibold text-foreground mb-1 pb-2 border-b border-border">Document Uploads</h2>
-              <p className="text-xs text-muted-foreground mb-4">Accepted formats: JPG, PNG, PDF — Max 10MB each</p>
+              <p className="text-xs text-muted-foreground mb-4">Accepted: JPG, PNG, PDF — Max 10MB each. Files are securely saved to Google Drive.</p>
 
               <div className="mb-4">
-                <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3 cursor-pointer">
+                <label className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">
                   <input type="checkbox" checked={isMinor} onChange={(e) => setIsMinor(e.target.checked)} className="w-4 h-4 accent-primary" />
                   Resident is below 18 years of age
                 </label>
@@ -250,7 +287,7 @@ export default function InformationPage() {
 
                 <div className="border border-border rounded-xl p-4">
                   <label className="block text-sm font-medium text-foreground mb-1">Aadhar Card *</label>
-                  <p className="text-xs text-muted-foreground mb-2">Resident's Aadhar card (both sides)</p>
+                  <p className="text-xs text-muted-foreground mb-2">Resident's Aadhar card (both sides if possible)</p>
                   <input ref={aadharRef} type="file" accept=".pdf,image/jpg,image/jpeg,image/png" className="w-full text-sm text-muted-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer" />
                 </div>
 
@@ -292,8 +329,12 @@ export default function InformationPage() {
               disabled={submitting}
               className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {submitting ? "Submitting..." : "Submit Resident Information"}
+              {submitting ? "Uploading & Submitting... Please wait" : "Submit Resident Information"}
             </button>
+
+            <p className="text-xs text-center text-muted-foreground">
+              Your documents are securely stored in Google Drive. Only the PG owner has access.
+            </p>
           </form>
         </div>
       </main>
