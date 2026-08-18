@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIFbGtVZM-UvmI4T7INaPylekeWYqfa5rn2lQfis8kiwzZtugLZwFd4DqVf9c8WOC6AA/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwG6VNifVQC_pahfCx5odc_Qhp7jpaHUWS9OXQsD8L_5xmOh7UyjlLurTV7SXUIZmLSOw/exec";
 
 // Helper: convert File to base64 string
 function fileToBase64(file: File): Promise<string> {
